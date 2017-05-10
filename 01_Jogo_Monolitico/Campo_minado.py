@@ -55,9 +55,8 @@ def save(historico):
 def verifyFile():
     arquivo = open('log_game.txt', 'r', encoding='UTF-8')
     dados = literal_eval(arquivo.read())
-    dict = dados
     arquivo.close()
-    return dict
+    return dados
 
 def layout():
     print("==================================================")
