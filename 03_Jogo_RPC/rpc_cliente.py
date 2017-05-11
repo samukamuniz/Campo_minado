@@ -2,19 +2,12 @@ from jsonrpclib import Server
 import sys, os
 import random
 from ast import literal_eval
-import pickle
-'''
-def client():
-    proxy = Server('http://localhost:7002')
-    print(proxy.printName("André", "Bessa"))
-'''
 
 def mostrarMatriz(matriz,l):
     print("")
     for i in range(l):
         print(matriz[i])
 
-####################################################################
 def layout():
     print("==================================================")
     print("                   CAMPO MINADO")
@@ -43,21 +36,13 @@ def restart():
     print("Seja bem vindo(a) ao jogo Campo minado!!!")
     print("\nVocê possui um jogo em andamento!!!Deseja continuar?\n1: Para Sim\n2: Para Não\n")
 
-########################################################################
-
-# ============================
-#       MENUS FUNCTIONS
-# ============================
-# Main menu
-
 proxy = Server('http://localhost:7002')
 
+# Main menu
 def main_menu():
-    print("Passei")
     if os.path.exists("log_game.txt") == True:
         dict = literal_eval(str(proxy.verifyFile()))
         #dict = waiter[0]
-        print("Passei")
         if (dict.get('without') == "-1"):
             layout()
             choice = input(" >> ")
@@ -86,7 +71,6 @@ def exec_menu(choice):
             menu_actions['main_menu']()
     return
 
-#New Game
 def newGame():
     os.system("cls")
     print("==================================================")
@@ -101,6 +85,33 @@ def newGame():
     mostrarMatriz(matriz, linhasMatriz)
     posBombas = proxy.sortearBombas(quantidadeBombas, linhasMatriz, colunasMatriz)
     qtdJogadas = ((linhasMatriz * colunasMatriz) - len(posBombas))
+    while (perdeu == False):
+        print("\nJogadas: %d | Jogadas restantes: %d" % (jogadas, qtdJogadas))
+        linha = int(input("\nDigite a linha >> ")) - 1
+        coluna = int(input("Digite a coluna >> ")) - 1
+        os.system("cls")
+        if ([linha, coluna] in posBombas):
+            gameOver()
+            historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "linhasMatriz": 0, "colunasMatriz": 0, "without": "-1"}
+            proxy.save(historico)
+            os.system("pause")
+            menu_actions['main_menu']()
+        else:
+            matriz[linha][coluna] = str(proxy.bombasAoRedor(linha, coluna, posBombas))
+            mostrarMatriz(matriz, linhasMatriz)
+            jogadas += 1
+            qtdJogadas -= 1
+            historico = {"matriz": matriz, "posBombas": posBombas, "jogadas": jogadas, "linhasMatriz": linhasMatriz,
+                         "colunasMatriz": colunasMatriz, "without": 0}
+            if (((linhasMatriz * colunasMatriz) - jogadas) == len(posBombas)):
+                win()
+                historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "linhasMatriz": 0, "colunasMatriz": 0,
+                             "without": "-1"}
+                proxy.save(historico)
+                os.system("pause")
+                menu_actions['main_menu']()
+            proxy.save(historico)
+    return
 
 #Restart Game
 
