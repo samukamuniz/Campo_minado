@@ -193,7 +193,7 @@ def restartGame():
             perdeu = False
             mostrarMatriz(matriz, linhasMatriz)
             while (perdeu == False):
-                #print("\nJogadas: %d | Jogadas restantes: %d" %(jogadas, qtdJogadas))
+                print("\nJogadas: %d | Jogadas restantes: %d" %(jogadas, qtdJogadas))
                 linha = int(input("\nDigite a linha >> ")) - 1
                 coluna = int(input("Digite a coluna >> ")) - 1
                 os.system("cls")

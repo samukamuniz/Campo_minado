@@ -49,8 +49,7 @@ def main_menu():
             exec_menu(choice)
             return
         else:
-            #restartGame()
-            print("Restart Game")
+            restartGame()
     else:
         layout()
         choice = input(" >> ")
@@ -92,7 +91,8 @@ def newGame():
         os.system("cls")
         if ([linha, coluna] in posBombas):
             gameOver()
-            historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "linhasMatriz": 0, "colunasMatriz": 0, "without": "-1"}
+            historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "qtdJogadas": 0, "linhasMatriz": 0,
+                         "colunasMatriz": 0, "without": "-1"}
             proxy.save(historico)
             os.system("pause")
             menu_actions['main_menu']()
@@ -101,24 +101,81 @@ def newGame():
             mostrarMatriz(matriz, linhasMatriz)
             jogadas += 1
             qtdJogadas -= 1
-            historico = {"matriz": matriz, "posBombas": posBombas, "jogadas": jogadas, "linhasMatriz": linhasMatriz,
-                         "colunasMatriz": colunasMatriz, "without": 0}
+            historico = {"matriz": matriz, "posBombas": posBombas, "jogadas": jogadas, "qtdJogadas": qtdJogadas,
+                         "linhasMatriz": linhasMatriz, "colunasMatriz": colunasMatriz, "without": 0}
             if (((linhasMatriz * colunasMatriz) - jogadas) == len(posBombas)):
                 win()
-                historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "linhasMatriz": 0, "colunasMatriz": 0,
-                             "without": "-1"}
+                historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "qtdJogadas": 0, "linhasMatriz": 0,
+                             "colunasMatriz": 0, "without": "-1"}
                 proxy.save(historico)
                 os.system("pause")
                 menu_actions['main_menu']()
             proxy.save(historico)
     return
 
-#Restart Game
+def restartGame():
+    restart()
+    choice = int(input(" >> "))
+    if (choice == 2):
+        os.system("cls")
+        historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "qtdJogadas": 0, "linhasMatriz": 0,
+                     "colunasMatriz": 0, "without": "-1"}
+        proxy.save(historico)
+        newGame()
+    else:
+        dict = proxy.verifyFile()
+        print(dict)
+        if (dict.get('without') == "-1"):
+            print("\nNão existe nenhum jogo salvo em sistema!!!\n\nVocê deseja iniciar um novo jogo?\n1: para Sim \n2: para não")
+            answer = int(input("\n >> "))
+            if (answer == 1):
+                os.system("cls")
+                newGame()
+            else:
+                print("\nMuito Obrigado!!!\nVolte sempre! ")
+                os.system("pause")
+                menu_actions['main_menu']()
+        else:
+            matriz = dict.get('matriz')
+            posBombas = dict.get('posBombas')
+            jogadas = dict.get('jogadas')
+            linhasMatriz = dict.get('linhasMatriz')
+            colunasMatriz = dict.get('colunasMatriz')
+            qtdJogadas = int(dict.get('qtdJogadas'))
+            perdeu = False
+            mostrarMatriz(matriz, linhasMatriz)
+            while (perdeu == False):
+                print("\nJogadas: %d | Jogadas restantes: %d" %(jogadas, qtdJogadas))
+                linha = int(input("\nDigite a linha >> ")) - 1
+                coluna = int(input("Digite a coluna >> ")) - 1
+                os.system("cls")
+                if ([linha, coluna] in posBombas):
+                    gameOver()
+                    historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "qtdJogadas": 0, "linhasMatriz": 0,
+                                 "colunasMatriz": 0, "without": "-1"}
+                    proxy.save(historico)
+                    os.system("pause")
+                    os.system("cls")
+                    menu_actions['main_menu']()
+                else:
+                    matriz[linha][coluna] = str(proxy.bombasAoRedor(linha, coluna, posBombas))
+                    mostrarMatriz(matriz, linhasMatriz)
+                    jogadas += 1
+                    qtdJogadas -= 1
+                    historico = {"matriz": matriz, "posBombas": posBombas, "jogadas": jogadas, "qtdJogadas": qtdJogadas,
+                                 "linhasMatriz": linhasMatriz, "colunasMatriz": colunasMatriz, "without": 0}
+                    if (((linhasMatriz * colunasMatriz) - jogadas) == len(posBombas)):
+                        print("\n\nPARABÉNS!!! Você ganhou o desafio.")
+                        print("Congratulations!!! You won the challenge\n\n")
+                        historico = {"matriz": 0, "posBombas": 0, "jogadas": 0, "qtdJogadas": 0, "linhasMatriz": 0,
+                                     "colunasMatriz": 0, "without": "-1"}
+                        proxy.save(historico)
+                        os.system("cls")
+                        os.system("pause")
+                        menu_actions['main_menu']()
+                    proxy.save(historico)
+            return
 
-
-
-#######################################################
-# Back to main menu
 def back():
     menu_actions['main_menu']()
 
@@ -131,7 +188,7 @@ def exit():
 menu_actions = {
     'main_menu': main_menu,
     '1': newGame,
-    #'2': restartGame,
+    '2': restartGame,
     '9': back,
     '0': exit,
 }

@@ -2,13 +2,7 @@ from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer
 import sys, os
 import random
 from ast import literal_eval
-from rpc_cliente import main_menu
-import pickle
 
-'''
-def printName(nome, sobrenome):
-    return nome + " " + sobrenome
-'''
 def gerarMatriz(l,c):
     matriz = [["*" for x in range(l)] for y in range(c)] # l -> linhas ; c -> colunas
     return matriz
@@ -22,7 +16,6 @@ def sortearBombas(n,l,c):
             i = random.randint(0,l-1) # y -1
             n = random.randint(0,c-1) # x -1
         vetor.append([i,n])
-        #print(vetor)
     return vetor
 
 def bombasAoRedor(l,c,posBombas):
@@ -51,8 +44,9 @@ def save(historico):
     hist.close()
 
 def verifyFile():
-    arquivo = open('log_game.txt', 'r', encoding='UTF-8')
-    dados = literal_eval(arquivo.read())
+    arquivo = open('log_game.txt', 'r')
+    waiter = str(arquivo.read())
+    dados = literal_eval(waiter)
     arquivo.close()
     return dados
 
@@ -65,3 +59,5 @@ def server():
     serverRPC.register_function(bombasAoRedor)
     serverRPC.register_function(save)
     serverRPC.serve_forever()
+
+server()
